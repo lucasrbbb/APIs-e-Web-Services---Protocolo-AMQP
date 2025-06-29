@@ -10,7 +10,7 @@ public class Listener {
 	
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	@RabbitListener(queues = "exemplo.exchange.fila1")
+	@RabbitListener(queues = "policia.federal")
 	public void listen(String json) {
         try {
             Transacao transacao = objectMapper.readValue(json, Transacao.class);

@@ -25,16 +25,15 @@ public class ExchangeProducerApp {
 
 	@PostConstruct
 	public void configurarCanais() {
-		Queue fila1 = new Queue("exemplo.exchange.fila1", true);
-		amqpAdmin.declareQueue(fila1);
-		Queue fila2 = new Queue("exemplo.exchange.fila2", true);
-		amqpAdmin.declareQueue(fila2);
+	    FanoutExchange fanout = new FanoutExchange("transacoes.suspeitas.exchange", true, false);
+	    amqpAdmin.declareExchange(fanout);
 
-		FanoutExchange fanout = new FanoutExchange("exemplo.exchange.fanout", true, false);
-		amqpAdmin.declareExchange(fanout);
-		Binding binding = BindingBuilder.bind(fila1).to(fanout);
-		amqpAdmin.declareBinding(binding);
-		binding = BindingBuilder.bind(fila2).to(fanout);
-		amqpAdmin.declareBinding(binding);
+	    Queue filaPolicia = new Queue("policia.federal", true);
+	    amqpAdmin.declareQueue(filaPolicia);
+	    amqpAdmin.declareBinding(BindingBuilder.bind(filaPolicia).to(fanout));
+
+	    Queue filaReceita = new Queue("receita.federal", true);
+	    amqpAdmin.declareQueue(filaReceita);
+	    amqpAdmin.declareBinding(BindingBuilder.bind(filaReceita).to(fanout));
 	}
 }

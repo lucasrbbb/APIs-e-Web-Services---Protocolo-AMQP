@@ -14,30 +14,29 @@ public class Producer {
     private final AmqpAdmin amqpAdmin;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final FanoutExchange fanout1 = new FanoutExchange("policia.federal", true, false);
-    private final FanoutExchange fanout2 = new FanoutExchange("receita.federal", true, false);
+    private final FanoutExchange fanout;
 
     public Producer(RabbitTemplate rabbitTemplate, AmqpAdmin amqpAdmin) {
         this.rabbitTemplate = rabbitTemplate;
         this.amqpAdmin = amqpAdmin;
 
-        amqpAdmin.declareExchange(fanout1);
-        amqpAdmin.declareExchange(fanout2);
+        this.fanout = new FanoutExchange("transacoes.suspeitas.exchange", true, false);
+        amqpAdmin.declareExchange(fanout);
     }
 
     public void enviarEventos(Transacao transacao) {
         try {
             String json = objectMapper.writeValueAsString(transacao);
 
-            rabbitTemplate.convertAndSend(fanout1.getName(), "", json);
-            rabbitTemplate.convertAndSend(fanout2.getName(), "", json);
+            rabbitTemplate.convertAndSend(fanout.getName(), "", json);
 
-            System.out.println("Transação publicada nos exchanges: " + json);
+            System.out.println("Transação publicada no exchange fanout: " + json);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
+
 
 
