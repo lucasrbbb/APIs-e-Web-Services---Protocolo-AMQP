@@ -1,26 +1,43 @@
 package br.edu.utfpr.td.cotsi.exchange.producer;
 
-import javax.annotation.PostConstruct;
-
+import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class Producer {
 
-	@Autowired
-	private RabbitTemplate rabbitTemplate;
+    private final RabbitTemplate rabbitTemplate;
+    private final AmqpAdmin amqpAdmin;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-	private FanoutExchange fanout = new FanoutExchange("exemplo.exchange.fanout", true, false);
+    private final FanoutExchange fanout1 = new FanoutExchange("policia.federal", true, false);
+    private final FanoutExchange fanout2 = new FanoutExchange("receita.federal", true, false);
 
-	@PostConstruct
-	public void enviarEventosTeste() {
-		for (int i = 0; i < 20; i++) {
-			String msg = String.format("Evento codigo: %s", i);
-			System.out.println(msg);
-			rabbitTemplate.convertAndSend(fanout.getName(), "", msg);
-		}
-	}
+    public Producer(RabbitTemplate rabbitTemplate, AmqpAdmin amqpAdmin) {
+        this.rabbitTemplate = rabbitTemplate;
+        this.amqpAdmin = amqpAdmin;
+
+        amqpAdmin.declareExchange(fanout1);
+        amqpAdmin.declareExchange(fanout2);
+    }
+
+    public void enviarEventos(Transacao transacao) {
+        try {
+            String json = objectMapper.writeValueAsString(transacao);
+
+            rabbitTemplate.convertAndSend(fanout1.getName(), "", json);
+            rabbitTemplate.convertAndSend(fanout2.getName(), "", json);
+
+            System.out.println("Transação publicada nos exchanges: " + json);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
+
+

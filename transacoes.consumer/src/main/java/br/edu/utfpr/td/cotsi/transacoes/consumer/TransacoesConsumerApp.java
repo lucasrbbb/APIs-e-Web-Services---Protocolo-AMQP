@@ -31,7 +31,4 @@ public class TransacoesConsumerApp {
 		filaTransacoes = new Queue("transacoes.financeiras", true);
 		amqpAdmin.declareQueue(filaTransacoes);		
 	}
-	envia para o patch do producer
-	criar novo patch de producer
-	ele deve produzir e consumir exchange classe separada
 }

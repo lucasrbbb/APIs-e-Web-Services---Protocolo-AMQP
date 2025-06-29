@@ -5,7 +5,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.FanoutExchange;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
